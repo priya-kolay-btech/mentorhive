@@ -1,0 +1,87 @@
+
+
+
+import express from "express";
+import LeaveApplication from "../models/LeaveApplication.js";
+
+const router = express.Router();
+
+/**
+ * @route   POST /api/leave
+ * @desc    Submit Leave (Mentee)
+ */
+router.post("/", async (req, res) => {
+  try {
+    const { menteeId, menteeName, reason, fromDate, toDate } = req.body;
+
+    if (!menteeId?.trim() || !menteeName?.trim() || !reason?.trim() || !fromDate || !toDate) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const leave = new LeaveApplication({
+      menteeId: menteeId.trim(),
+      menteeName: menteeName.trim(),
+      reason: reason.trim(),
+      fromDate: new Date(fromDate),
+      toDate: new Date(toDate),
+      status: "Pending"
+    });
+
+    await leave.save();
+    res.status(201).json({ message: "Leave application submitted successfully", leave });
+  } catch (error) {
+    console.error("Error submitting leave:", error);
+    res.status(500).json({ message: "Server error while submitting leave" });
+  }
+});
+
+/**
+ * @route   GET /api/leave
+ * @desc    Get all leaves (Mentor)
+ */
+router.get("/", async (req, res) => {
+  try {
+    const leaves = await LeaveApplication.find().sort({ createdAt: -1 });
+    res.status(200).json(leaves);
+  } catch (error) {
+    console.error("Error fetching leaves:", error);
+    res.status(500).json({ message: "Server error while fetching leaves" });
+  }
+});
+
+/**
+ * @route   PUT /api/leave/:id
+ * @desc    Approve/Reject Leave (Mentor)
+ */
+router.put("/:id", async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    if (!["Approved", "Rejected"].includes(status)) {
+      return res.status(400).json({ message: "Status must be 'Approved' or 'Rejected'" });
+    }
+
+    const leave = await LeaveApplication.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!leave) {
+      return res.status(404).json({ message: "Leave application not found" });
+    }
+
+
+ // 🔹 Emit real-time update to all clients
+    req.io.emit("leaveStatusUpdated", leave);
+
+
+    res.json({ message: `Leave ${status.toLowerCase()} successfully`, leave });
+  } catch (error) {
+    console.error("Error updating leave status:", error);
+    res.status(500).json({ message: "Server error while updating leave status" });
+  }
+});
+
+export default router;
+
