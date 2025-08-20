@@ -23,7 +23,7 @@ router.post("/submit", async (req, res) => {
       fromDate,
       toDate,
       reason,
-      status: "Pending"
+      status: "Pending",
     });
 
     await student.save();

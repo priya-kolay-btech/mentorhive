@@ -17,6 +17,8 @@ import pendingRoutes from "./routes/pendingRoutes.js";
 import mentorRoutes from "./routes/mentorRoutes.js";
 //import userRoutes from "./routes/userRoutes.js";
 import loginRoute from "./routes/loginRoutes.js"; 
+//import adminRoutes from "./routes/adminRoutes.js";
+
 
 
 
@@ -51,6 +53,11 @@ app.use("/api/pending", pendingRoutes(io));
 app.use("/api/mentors", mentorRoutes);
 //app.use("/api/users", userRoutes);
 app.use("/api/login", loginRoute);
+
+//app.use("/api/admin", adminRoutes);
+
+
+
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
