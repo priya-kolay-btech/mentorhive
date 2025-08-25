@@ -21,26 +21,46 @@ const handleLogin = async () => {
       role,
     });
 
-    if (res.data.role === "mentor") {
-      localStorage.setItem("mentorId", res.data.mentor._id);
-      localStorage.setItem("role", "mentor");
-      localStorage.setItem("rollNumber", res.data.mentor.rollNumber);
-      navigate("/mentor"); // Redirect to mentor dashboard
-    }else if (res.data.role === "mentee") {
-  localStorage.setItem("student", JSON.stringify(res.data.student)); // store full object
-  localStorage.setItem("studentId", res.data.student._id);
-  localStorage.setItem("role", "mentee");
-  localStorage.setItem("rollNumber", res.data.student.rollNumber);
-  navigate("/mentee");
-}
-
-  } catch (err) {
-    console.error("Login error:", err.response?.data || err.message);
-    alert(err.response?.data?.message || "❌ Login failed.");
-  }
-};
 
 
+//     if (res.data.role === "mentor") {
+//       localStorage.setItem("mentorId", res.data.mentor._id);
+//       localStorage.setItem("role", "mentor");
+// //      localStorage.setItem("rollNumber", res.data.mentor.rollNumber);
+//       navigate("/mentor"); // Redirect to mentor dashboard
+//     }else if (res.data.role === "mentee") {
+//   localStorage.setItem("student", JSON.stringify(res.data.student)); // store full object
+//   localStorage.setItem("studentId", res.data.student._id);
+//   localStorage.setItem("role", "mentee");
+//   localStorage.setItem("rollNumber", res.data.student.rollNumber);
+//   navigate("/mentee");
+// }
+
+//   } catch (err) {
+//     console.error("Login error:", err.response?.data || err.message);
+//     alert(err.response?.data?.message || "❌ Login failed.");
+//   }
+// };
+
+
+      if (res.data.role === "mentor") {
+        // ✅ fallback in case backend doesn’t wrap mentor in "mentor"
+        localStorage.setItem("mentorId", res.data.mentor?._id || res.data._id);
+        localStorage.setItem("mentorName", res.data.mentor?.name || res.data.name || "");
+        localStorage.setItem("role", "mentor");
+        navigate("/mentor"); // Redirect to mentor dashboard
+      } else if (res.data.role === "mentee") {
+        localStorage.setItem("student", JSON.stringify(res.data.student));
+        localStorage.setItem("studentId", res.data.student._id);
+        localStorage.setItem("role", "mentee");
+        localStorage.setItem("rollNumber", res.data.student.rollNumber);
+        navigate("/mentee");
+      }
+    } catch (err) {
+      console.error("Login error:", err.response?.data || err.message);
+      alert(err.response?.data?.message || "❌ Login failed.");
+    }
+  };
 
 
 
@@ -116,6 +136,3 @@ const handleLogin = async () => {
     </div>
   );
 }
-
-
-
